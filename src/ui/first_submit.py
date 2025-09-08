@@ -1,6 +1,4 @@
-import json
 from agents import Runner, InputGuardrailTripwireTriggered, Agent
-from src.refiner.refiner import RefiningResponse
 import gradio
 import asyncio
 
@@ -37,12 +35,8 @@ async def first_submit(
     trying_to_over_eat = False
     try:
         if agent:
-            res: RefiningResponse = (
-                await Runner.run(agent, input=user_input)
-            ).final_output
+            res = (await Runner.run(agent, input=user_input)).final_output
             questions_list = [x.model_dump() for x in res.questions]
-            print(json.dumps(res.model_dump(), indent=4))
-            print(json.dumps(questions_list, indent=4))
     except InputGuardrailTripwireTriggered:
         trying_to_over_eat = True
 

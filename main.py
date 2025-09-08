@@ -3,7 +3,7 @@ from fpdf import FPDF
 from agents import Runner, InputGuardrailTripwireTriggered
 from src.ui.first_submit import first_submit as fs
 
-from src.refiner.refiner import refining_agent, RefiningResponse
+from refiner.runner import refining_agent, RefiningResponse
 
 DEFAULT_QA = [
     {"question": "", "reason": ""},

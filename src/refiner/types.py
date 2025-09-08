@@ -24,8 +24,8 @@ class RefiningResponse(BaseModel):
 
     questions: List[RefiningQuestion] = Field(
         ...,
-        min_items=3,
-        max_items=3,
+        min_length=3,
+        max_length=3,
         description="List of exactly 3 Refining questions",
     )
 
