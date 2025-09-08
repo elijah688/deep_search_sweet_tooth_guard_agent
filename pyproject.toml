@@ -1,0 +1,17 @@
+[project]
+name = "final-deep-research"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "gradio>=5.44.1",
+    "markdown-pdf>=1.9",
+    "openai-agents>=0.2.11",
+]
+
+[dependency-groups]
+dev = [
+    "pytest>=8.4.2",
+    "pytest-asyncio>=1.1.0",
+]
