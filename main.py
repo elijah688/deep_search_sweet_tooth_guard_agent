@@ -1,10 +1,9 @@
 import gradio as gr
 from fpdf import FPDF
-from agents import Runner, InputGuardrailTripwireTriggered
 from src.ui.first_submit import first_submit as fs
-
-from refiner.runner import refining_agent, RefiningResponse
-
+from src.refiner.factory import spawn_refining_agent
+from src.refiner.runner import RefiningAgentRunner
+refining_agent = RefiningAgentRunner(spawn_refining_agent())
 DEFAULT_QA = [
     {"question": "", "reason": ""},
     {"question": "", "reason": ""},
@@ -18,7 +17,7 @@ async def fs_wrapper(user_input):
     async for update in fs(
         gr=gr,
         user_input=user_input,
-        agent=refining_agent,
+        refining_agent=refining_agent,
     ):
         yield update
 

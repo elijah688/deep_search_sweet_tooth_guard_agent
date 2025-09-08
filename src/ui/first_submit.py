@@ -1,7 +1,10 @@
-from agents import Runner, InputGuardrailTripwireTriggered, Agent
+from agents import InputGuardrailTripwireTriggered
 import gradio
 import asyncio
-
+from src.refiner.runner import RefiningAgentRunner
+from typing import Optional, List, Tuple
+from src.refiner.runner import RefiningAgentRunner
+from src.refiner.types import RefiningQuestion
 
 DEFAULT_QA = [
     {"question": "q0", "reason": "r0"},
@@ -13,7 +16,7 @@ DEFAULT_QA = [
 async def first_submit(
     user_input: str,
     gr: gradio,
-    agent: Agent = None,
+    refining_agent: RefiningAgentRunner = None,
     questions_list: list[dict[str, str]] = DEFAULT_QA,
     warning_msg: str = "⚠️ Whoa there, Sugar Bear!\n🍰🍫🍕 Slow down! Your sweet tooth is on fire! 🔥🥐🍩",
 ):
@@ -29,16 +32,24 @@ async def first_submit(
         gr.update(interactive=False),
     )
 
-    await asyncio.sleep(1)
 
-    agent = None
     trying_to_over_eat = False
-    try:
-        if agent:
-            res = (await Runner.run(agent, input=user_input)).final_output
-            questions_list = [x.model_dump() for x in res.questions]
-    except InputGuardrailTripwireTriggered:
-        trying_to_over_eat = True
+    if refining_agent:
+        res: Tuple[
+            bool, Optional[List[RefiningAgentRunner]]
+        ] = await refining_agent.run(user_input)
+
+        print(res)
+        print(trying_to_over_eat)
+        trying_to_over_eat, questions = res
+        questions_list = (
+            [q.model_dump() for q in questions if isinstance(q, RefiningQuestion)]
+            if questions
+            else []
+        )
+
+        print(questions_list)
+
 
     # Overeating branch
     if trying_to_over_eat:

@@ -9,7 +9,7 @@ class RefiningAgentRunner:
         self.agent = agent
         self.runner = runner
 
-    async def run(self, user_input: str) -> Tuple[bool, Optional[List[dict]]]:
+    async def run(self, user_input: str) -> Tuple[bool, Optional[RefiningResponse]]:
         trying_to_over_eat = False
         questions_list: Optional[List[dict]] = None
 
@@ -18,7 +18,7 @@ class RefiningAgentRunner:
                 res: RefiningResponse = (
                     await self.runner.run(self.agent, input=user_input)
                 ).final_output
-                questions_list = [x.model_dump() for x in res.questions]
+                questions_list = [x for x in res.questions]
         except InputGuardrailTripwireTriggered:
             trying_to_over_eat = True
 
