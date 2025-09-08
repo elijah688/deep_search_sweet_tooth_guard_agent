@@ -1,42 +1,61 @@
 import gradio as gr
-import time
 
 qa = [{"q0": "r0"}, {"q1": "r1"}, {"q2": "r2"}]
 re_out = "research out"
 
 
+# Example condition for over-eating check
+def is_trying_to_over_eat(user_input):
+    # Replace this with your actual logic
+    return user_input.lower() == "already ate"
+
+
 def first_submit(user_input):
-    time.sleep(2)
+    trying_to_over_eat = is_trying_to_over_eat(user_input)
 
-    labels = [list(item.keys())[0] for item in qa]
-    placeholders = [list(item.values())[0] for item in qa]
-
-    user_update = gr.update(interactive=False)
-    btn_update = gr.update(interactive=False)
-
-    qa_updates = [
-        gr.update(
-            visible=True,
-            label=labels[i],
-            placeholder=placeholders[i],
-            interactive=True,
-            value="",
+    if trying_to_over_eat:
+        return (
+            gr.update(value="⚠️ You already ate!", visible=True),  # warning
+            gr.update(visible=False),
+            gr.update(visible=False),
+            gr.update(visible=False),
+            gr.update(visible=False),
+            gr.update(visible=False),
+            gr.update(visible=False),
+            gr.update(visible=False),
         )
-        for i in range(3)
-    ]
+    else:
+        # Normal workflow
+        labels = [list(item.keys())[0] for item in qa]
+        placeholders = [list(item.values())[0] for item in qa]
 
-    final_update = gr.update(visible=True, interactive=False)
-    output_update = gr.update(visible=False, value="")
+        user_update = gr.update(interactive=False)
+        btn_update = gr.update(interactive=False)
 
-    return (
-        user_update,
-        btn_update,
-        qa_updates[0],
-        qa_updates[1],
-        qa_updates[2],
-        final_update,
-        output_update,
-    )
+        qa_updates = [
+            gr.update(
+                visible=True,
+                label=labels[i],
+                placeholder=placeholders[i],
+                interactive=True,
+                value="",
+            )
+            for i in range(3)
+        ]
+
+        final_update = gr.update(visible=True, interactive=False)
+        output_update = gr.update(visible=False, value="")
+
+        return (
+            gr.update(visible=False),  # hide warning
+            user_update,
+            btn_update,
+            qa_updates[0],
+            qa_updates[1],
+            qa_updates[2],
+            final_update,
+            output_update,
+        )
 
 
 def check_inputs(a, b, c):
@@ -62,6 +81,8 @@ with gr.Blocks() as demo:
     user_input = gr.Textbox(label="Initial Input")
     submit_btn = gr.Button("Submit")
 
+    warning = gr.Textbox(label="", interactive=False, visible=False)
+
     qa_inputs = [gr.Textbox(visible=False) for _ in range(3)]
 
     final_btn = gr.Button("Final Submit", visible=False, interactive=False)
@@ -71,6 +92,7 @@ with gr.Blocks() as demo:
         fn=first_submit,
         inputs=[user_input],
         outputs=[
+            warning,
             user_input,
             submit_btn,
             qa_inputs[0],
