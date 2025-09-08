@@ -1,7 +1,6 @@
 import gradio as gr
 from fpdf import FPDF
 from agents import Runner, InputGuardrailTripwireTriggered
-import json
 from src.ui.first_submit import first_submit as fs
 
 from src.refiner.refiner import refining_agent, RefiningResponse

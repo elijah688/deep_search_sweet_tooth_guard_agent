@@ -5,8 +5,8 @@ import gradio
 import asyncio
 
 async def first_submit(
-    gr: gradio,
     user_input: str,
+    gr: gradio,
     agent: Agent = None,
     questions_list: list[dict[str, str]] = None,
     warning_msg: str = "⚠️ Whoa there, Sugar Bear!\n🍰🍫🍕 Slow down! Your sweet tooth is on fire! 🔥🥐🍩",
@@ -29,7 +29,7 @@ async def first_submit(
     await asyncio.sleep(1)
     
     agent=None
-    trying_to_over_eat = True
+    trying_to_over_eat = False
     try:
         if agent:
             res: RefiningResponse = (
