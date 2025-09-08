@@ -19,7 +19,6 @@ async def fs_wrapper(user_input):
         gr=gr,
         user_input=user_input,
         agent=refining_agent,
-        questions_list=DEFAULT_QA,
     ):
         yield update
 

@@ -4,16 +4,21 @@ from src.refiner.refiner import RefiningResponse
 import gradio
 import asyncio
 
+
+DEFAULT_QA = [
+    {"question": "q0", "reason": "r0"},
+    {"question": "q1", "reason": "r1"},
+    {"question": "q2", "reason": "r2"},
+]
+
+
 async def first_submit(
     user_input: str,
     gr: gradio,
     agent: Agent = None,
-    questions_list: list[dict[str, str]] = None,
+    questions_list: list[dict[str, str]] = DEFAULT_QA,
     warning_msg: str = "⚠️ Whoa there, Sugar Bear!\n🍰🍫🍕 Slow down! Your sweet tooth is on fire! 🔥🥐🍩",
-    placeholder_msg: str = "Please answer the following questions:",
-    extra_ui_updates: dict = None,
 ):
-    
     yield (
         gr.update(interactive=False),
         gr.update(interactive=False),
@@ -24,11 +29,11 @@ async def first_submit(
         gr.update(interactive=False),
         gr.update(interactive=False),
         gr.update(interactive=False),
-    ) 
+    )
 
     await asyncio.sleep(1)
-    
-    agent=None
+
+    agent = None
     trying_to_over_eat = False
     try:
         if agent:
@@ -57,12 +62,6 @@ async def first_submit(
         return
 
     # If no agent, provide placeholder QA
-    if questions_list is None:
-        questions_list = [
-            {"question": "", "reason": placeholder_msg},
-            {"question": "", "reason": ""},
-            {"question": "", "reason": ""},
-        ]
 
     labels = [item["question"] for item in questions_list]
     placeholders = [item["reason"] for item in questions_list]
@@ -93,8 +92,5 @@ async def first_submit(
             gr.update(visible=False),  # retry hidden
         ]
     )
-
-    if extra_ui_updates:
-        updates.extend(extra_ui_updates.values())
 
     yield tuple(updates)
