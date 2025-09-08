@@ -32,15 +32,12 @@ async def first_submit(
         gr.update(interactive=False),
     )
 
-
     trying_to_over_eat = False
     if refining_agent:
         res: Tuple[
             bool, Optional[List[RefiningAgentRunner]]
         ] = await refining_agent.run(user_input)
 
-        print(res)
-        print(trying_to_over_eat)
         trying_to_over_eat, questions = res
         questions_list = (
             [q.model_dump() for q in questions if isinstance(q, RefiningQuestion)]
@@ -49,7 +46,6 @@ async def first_submit(
         )
 
         print(questions_list)
-
 
     # Overeating branch
     if trying_to_over_eat:
