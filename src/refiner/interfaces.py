@@ -1,4 +1,5 @@
-from typing import Protocol, Any
+from typing import Protocol
+from src.refiner.types import RefiningResponse
 
 
 class IAgent(Protocol):
@@ -7,8 +8,14 @@ class IAgent(Protocol):
     name: str
 
 
+class IRunnerResult(Protocol):
+    """The result object returned from IRunner.run"""
+
+    final_output: RefiningResponse
+
+
 class IRunner(Protocol):
-    """Any runner that knows how to run an agent with input and return a RefiningResponse."""
+    """Any runner that can run an agent with input and return a result with .final_output"""
 
     @staticmethod
-    async def run(agent: IAgent, input: str) -> Any: ...
+    async def run(agent: IAgent, input: str) -> IRunnerResult: ...
