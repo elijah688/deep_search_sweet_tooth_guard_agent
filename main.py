@@ -111,7 +111,7 @@ with gr.Blocks() as demo:
                 out_update,
                 gr.update(value=pdf_file, visible=True),
                 final_btn_update,
-                gr.update(visible=True),
+                gr.update(visible=True, interactive=True),
             )
         return (
             out_update,
