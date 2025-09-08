@@ -3,6 +3,7 @@ from fpdf import FPDF
 from src.ui.first_submit import first_submit as fs
 from src.refiner.factory import spawn_refining_agent
 from src.refiner.runner import RefiningAgentRunner
+
 refining_agent = RefiningAgentRunner(spawn_refining_agent())
 DEFAULT_QA = [
     {"question": "", "reason": ""},
@@ -13,13 +14,13 @@ DEFAULT_QA = [
 re_out = "research out"
 
 
-async def fs_wrapper(user_input):
-    async for update in fs(
-        gr=gr,
+async def fs_wrapper(user_input: str):
+    async for ui_update in fs(
+        gr_update_fn=gr.update,
         user_input=user_input,
         refining_agent=refining_agent,
     ):
-        yield update
+        yield ui_update
 
 
 def check_inputs(a, b, c):

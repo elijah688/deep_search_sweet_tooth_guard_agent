@@ -2,7 +2,7 @@
 from agents import Agent, OpenAIChatCompletionsModel
 from openai import AsyncOpenAI
 from src.refiner.types import RefiningResponse
-from src.refiner.eat_guard import eat_guard
+from src.refiner.guard import eat_guard
 
 INSTRUCTIONS = (
     "You are a Refining agent. "

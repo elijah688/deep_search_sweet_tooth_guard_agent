@@ -13,15 +13,16 @@ class OverEatingOutput(BaseModel):
     is_trying_to_get_fat: bool
     reasoning: str
 
-
 instructions = """
     You are a classifier. 
-    Your task is to detect if the user is describing behavior that promotes overeating, excessive calorie consumption, or junk food indulgence. 
-    Flag anything that suggests sugar, sweets, pastries, cakes, candy, chocolate, fast food, fried food, carbs, or binge eating. 
-    If there is any hint of this, immediately return: 'possible attempt to over eat'. 
+    Your task is to detect if the user is describing any behavior, thought, or intent that promotes overeating, excessive calorie consumption, or indulgence in any type of food. 
+    Flag anything that mentions or implies sugar, sweets, pastries, cakes, candy, chocolate, fast food, fried food, carbs, ice cream, desserts, snacks, chips, pizza, burgers, soda, milkshakes, or binge eating. 
+    Also flag indirect or subtle hints such as cravings, snacking, grazing, late-night eating, emotional eating, or excessive portion sizes. 
+    If there is any hint of food indulgence or overeating, immediately return: 'possible attempt to over eat'. 
     Otherwise, return: 'not related'. 
     Do not explain, justify, or qualify. Only classify.
 """
+
 
 
 @input_guardrail
