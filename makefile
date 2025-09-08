@@ -9,7 +9,7 @@ sync:
 # Run all tests
 test:
 	export PYTHONPATH=$PWD/src
-	uv run python -m pytest
+	uv run python -m pytest -s
 
 # Run a single test by name passed as a variable
 test_n:

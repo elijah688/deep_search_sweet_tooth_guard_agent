@@ -1,10 +1,9 @@
-from agents import InputGuardrailTripwireTriggered
 import gradio
-import asyncio
 from src.refiner.runner import RefiningAgentRunner
-from typing import Optional, List, Tuple
+from typing import Optional, Tuple
 from src.refiner.runner import RefiningAgentRunner
 from src.refiner.types import RefiningQuestion
+from src.refiner.types import RefiningResponse
 
 DEFAULT_QA = [
     {"question": "q0", "reason": "r0"},
@@ -34,9 +33,9 @@ async def first_submit(
 
     trying_to_over_eat = False
     if refining_agent:
-        res: Tuple[
-            bool, Optional[List[RefiningAgentRunner]]
-        ] = await refining_agent.run(user_input)
+        res: Tuple[bool, Optional[RefiningResponse]] = await refining_agent.run(
+            user_input
+        )
 
         trying_to_over_eat, questions = res
         questions_list = (
