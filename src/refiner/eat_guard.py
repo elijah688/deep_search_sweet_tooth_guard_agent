@@ -37,7 +37,7 @@ async def eat_guard(
     result = await Runner.run(guardrail_agent, input, context=ctx.context)
 
     output_info: OverEatingOutput = result.final_output
-
+    print(output_info)
     return GuardrailFunctionOutput(
         output_info,
         tripwire_triggered=output_info.is_trying_to_get_fat,

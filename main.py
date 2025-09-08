@@ -2,76 +2,31 @@ import gradio as gr
 from fpdf import FPDF
 from agents import Runner, InputGuardrailTripwireTriggered
 import json
+from src.ui.first_submit import first_submit as fs
 
 from src.refiner.refiner import refining_agent, RefiningResponse
 
-qa = [{"q0": "r0"}, {"q1": "r1"}, {"q2": "r2"}]
+DEFAULT_QA = [
+    {"question": "", "reason": ""},
+    {"question": "", "reason": ""},
+    {"question": "", "reason": ""},
+]
+
 re_out = "research out"
 
 
-async def first_submit(user_input):
-    trying_to_over_eat = False
-
-    try:
-        res: RefiningResponse = (
-            await Runner.run(refining_agent, input=user_input)
-        ).final_output
-
-        j = json.dumps(res.model_dump(), indent=4)
-        print(j)
-        qa = res.questions
-
-    except InputGuardrailTripwireTriggered:
-        trying_to_over_eat = True
-
-    if trying_to_over_eat:
-        return (
-            gr.update(value="⚠️ Whoa there, Sugar Bear!\n🍰🍫🍕 Slow down! Your sweet tooth is on fire again! 🔥🥐🍩", visible=True),
-            gr.update(visible=False),
-            gr.update(visible=False),
-            gr.update(visible=False),
-            gr.update(visible=False),
-            gr.update(visible=False),
-            gr.update(visible=False),
-            gr.update(visible=False),
-            gr.update(visible=True),  # Retry button visible
-        )
-    else:
-        labels = [q.question for q in qa]
-        placeholders = [q.reason for q in qa]
-
-        user_update = gr.update(interactive=False)
-        btn_update = gr.update(interactive=False)
-
-        qa_updates = [
-            gr.update(
-                visible=True,
-                label=labels[i],
-                placeholder=placeholders[i],
-                interactive=True,
-                value="",
-            )
-            for i in range(3)
-        ]
-
-        final_update = gr.update(visible=True, interactive=False)
-        output_update = gr.update(visible=False, value="")
-
-        return (
-            gr.update(visible=False),
-            user_update,
-            btn_update,
-            qa_updates[0],
-            qa_updates[1],
-            qa_updates[2],
-            final_update,
-            output_update,
-            gr.update(visible=False),  # Retry button hidden
-        )
+async def fs_wrapper(user_input):
+    async for update in fs(
+        gr=gr,
+        user_input=user_input,
+        agent=refining_agent,
+        questions_list=DEFAULT_QA,
+    ):
+        yield update
 
 
 def check_inputs(a, b, c):
-    placeholders = [list(item.values())[0] for item in qa]
+    placeholders = [list(item.values())[0] for item in DEFAULT_QA]
     vals = [a, b, c]
 
     for v, p in zip(vals, placeholders):
@@ -81,7 +36,7 @@ def check_inputs(a, b, c):
 
 
 def final_submit(a, b, c):
-    placeholders = [list(item.values())[0] for item in qa]
+    placeholders = [list(item.values())[0] for item in DEFAULT_QA]
     vals = [a, b, c]
     for v, p in zip(vals, placeholders):
         if not v or not str(v).strip() or str(v).strip() == str(p).strip():
@@ -127,7 +82,7 @@ with gr.Blocks() as demo:
 
     # First submit
     submit_btn.click(
-        fn=first_submit,
+        fn=fs_wrapper,
         inputs=[user_input],
         outputs=[
             warning,
