@@ -21,6 +21,7 @@ def first_submit(user_input):
             gr.update(visible=False),
             gr.update(visible=False),
             gr.update(visible=False),
+            gr.update(visible=True),  # Retry button visible
         )
     else:
         labels = [list(item.keys())[0] for item in qa]
@@ -52,6 +53,7 @@ def first_submit(user_input):
             qa_updates[2],
             final_update,
             output_update,
+            gr.update(visible=False),  # Retry button hidden
         )
 
 def check_inputs(a, b, c):
@@ -81,18 +83,31 @@ def create_pdf(text):
     pdf.output(filename)
     return filename  # Gradio will use this for download
 
+def reset_app():
+    return (
+        gr.update(value="", visible=False, interactive=True),  # warning
+        gr.update(value="", visible=True, interactive=True),   # user_input
+        gr.update(visible=True, interactive=True),             # submit button
+        gr.update(visible=False),  # QA1
+        gr.update(visible=False),  # QA2
+        gr.update(visible=False),  # QA3
+        gr.update(visible=False, interactive=False),  # final button
+        gr.update(value="", visible=False),            # output
+        gr.update(visible=False),                      # retry button
+        gr.update(value=None, visible=False)          # download button
+    )
+
 with gr.Blocks() as demo:
     user_input = gr.Textbox(label="Initial Input")
     submit_btn = gr.Button("Submit")
-
     warning = gr.Textbox(label="", interactive=False, visible=False)
-
     qa_inputs = [gr.Textbox(visible=False) for _ in range(3)]
-
     final_btn = gr.Button("Final Submit", visible=False, interactive=False)
     output = gr.Textbox(label="Output", interactive=False, visible=False)
     download_btn = gr.File(label="Download PDF", visible=False)
+    retry_btn = gr.Button("Retry", visible=False)
 
+    # First submit
     submit_btn.click(
         fn=first_submit,
         inputs=[user_input],
@@ -105,29 +120,34 @@ with gr.Blocks() as demo:
             qa_inputs[2],
             final_btn,
             output,
+            retry_btn,
         ],
     )
 
     for box in qa_inputs:
         box.change(fn=check_inputs, inputs=qa_inputs, outputs=final_btn)
 
-    # Show output, enable download, and lock the final button
+    # Final submit with PDF and lock button
     def final_submit_with_download(a, b, c):
         out_update = final_submit(a, b, c)
-
-        # Lock the Final Submit button
         final_btn_update = gr.update(interactive=False)
 
         if out_update["value"] != "Fill all fields with your own values":
             pdf_file = create_pdf(out_update["value"])
-            return out_update, gr.update(value=pdf_file, visible=True), final_btn_update
-
-        return out_update, gr.update(visible=False), final_btn_update
+            return out_update, gr.update(value=pdf_file, visible=True), final_btn_update, gr.update(visible=True)
+        return out_update, gr.update(visible=False), final_btn_update, gr.update(visible=False)
 
     final_btn.click(
         fn=final_submit_with_download,
         inputs=qa_inputs,
-        outputs=[output, download_btn, final_btn],
+        outputs=[output, download_btn, final_btn, retry_btn],
+    )
+
+    # Retry button resets the app
+    retry_btn.click(
+        fn=reset_app,
+        inputs=[],
+        outputs=[warning, user_input, submit_btn, qa_inputs[0], qa_inputs[1], qa_inputs[2], final_btn, output, retry_btn, download_btn],
     )
 
 if __name__ == "__main__":
