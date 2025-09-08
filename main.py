@@ -3,6 +3,7 @@ from fpdf import FPDF
 from src.ui.first_submit import first_submit as fs
 from src.refiner.factory import spawn_refining_agent
 from src.refiner.runner import RefiningAgentRunner
+from typing import Any
 
 refining_agent = RefiningAgentRunner(spawn_refining_agent())
 DEFAULT_QA = [
@@ -23,9 +24,9 @@ async def fs_wrapper(user_input: str):
         yield ui_update
 
 
-def check_inputs(a, b, c):
-    placeholders = [list(item.values())[0] for item in DEFAULT_QA]
-    vals = [a, b, c]
+def check_inputs(a: str, b: str, c: str) -> dict[str, Any]:
+    placeholders: list[str] = [list(item.values())[0] for item in DEFAULT_QA]
+    vals: list[str] = [a, b, c]
 
     for v, p in zip(vals, placeholders):
         if not v or not str(v).strip() or str(v).strip() == str(p).strip():
@@ -33,9 +34,10 @@ def check_inputs(a, b, c):
     return gr.update(interactive=True)
 
 
-def final_submit(a, b, c):
-    placeholders = [list(item.values())[0] for item in DEFAULT_QA]
-    vals = [a, b, c]
+def final_submit(a: str, b: str, c: str) -> dict[str, Any]:
+    placeholders: list[str] = [list(item.values())[0] for item in DEFAULT_QA]
+    vals: list[str] = [a, b, c]
+
     for v, p in zip(vals, placeholders):
         if not v or not str(v).strip() or str(v).strip() == str(p).strip():
             return gr.update(value="Fill all fields with your own values", visible=True)
@@ -43,14 +45,14 @@ def final_submit(a, b, c):
 
 
 # Function to create PDF
-def create_pdf(text):
+def create_pdf(text: str) -> str:
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, text)
+    pdf.multi_cell(0, 10, text)  # type: ignore
     filename = "output.pdf"
     pdf.output(filename)
-    return filename  # Gradio will use this for download
+    return filename
 
 
 def reset_app():
@@ -99,7 +101,7 @@ with gr.Blocks() as demo:
         box.change(fn=check_inputs, inputs=qa_inputs, outputs=final_btn)
 
     # Final submit with PDF and lock button
-    def final_submit_with_download(a, b, c):
+    def final_submit_with_download(a: str, b: str, c: str):
         out_update = final_submit(a, b, c)
         final_btn_update = gr.update(interactive=False)
 
