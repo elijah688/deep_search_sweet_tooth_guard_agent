@@ -26,7 +26,7 @@ async def first_submit(user_input):
 
     if trying_to_over_eat:
         return (
-            gr.update(value="⚠️ You already ate!", visible=True),
+            gr.update(value="⚠️ Whoa there, Sugar Bear!\n🍰🍫🍕 Slow down! Your sweet tooth is on fire again! 🔥🥐🍩", visible=True),
             gr.update(visible=False),
             gr.update(visible=False),
             gr.update(visible=False),

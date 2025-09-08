@@ -16,11 +16,11 @@ class GettingFatOutput(BaseModel):
 
 instructions = """
     You are a classifier. 
-    Your task is to detect if the user is describing behavior that suggests overeating or excessive calorie consumption. 
-    Examples: buying large amounts of cake, junk food, fast food, or sweets. 
-    If the input shows this, flag it as 'possible attempt to get fat'. 
-    Otherwise, return 'not related'.
-    Do not explain or justify. Just classify.
+    Your task is to detect if the user is describing behavior that promotes overeating, excessive calorie consumption, or junk food indulgence. 
+    Flag anything that suggests sugar, sweets, pastries, cakes, candy, chocolate, fast food, fried food, carbs, or binge eating. 
+    If there is any hint of this, immediately return: 'possible attempt to get fat'. 
+    Otherwise, return: 'not related'. 
+    Do not explain, justify, or qualify. Only classify.
 """
 guardrail_agent = Agent(
     name="Guardrail check",
@@ -38,6 +38,7 @@ async def eat_guard(
 
     output_info: GettingFatOutput = result.final_output
 
+    print(output_info)
     return GuardrailFunctionOutput(
         output_info,
         tripwire_triggered=output_info.is_trying_to_get_fat,

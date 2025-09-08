@@ -52,5 +52,6 @@ refining_agent = Agent(
         openai_client=AsyncOpenAI(),
         model="gpt-5-nano",
     ),
+    input_guardrails=[eat_guard],
     output_type=RefiningResponse,
 )
