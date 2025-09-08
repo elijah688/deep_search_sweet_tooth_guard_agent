@@ -1,15 +1,28 @@
 import gradio as gr
 from fpdf import FPDF
+from agents import Runner, InputGuardrailTripwireTriggered
+import json
+
+from src.refiner.refiner import refining_agent, RefiningResponse
 
 qa = [{"q0": "r0"}, {"q1": "r1"}, {"q2": "r2"}]
 re_out = "research out"
 
-# Check for over-eating
-def is_trying_to_over_eat(user_input):
-    return user_input.lower() == "already atex"
 
-def first_submit(user_input):
-    trying_to_over_eat = is_trying_to_over_eat(user_input)
+async def first_submit(user_input):
+    trying_to_over_eat = False
+
+    try:
+        res: RefiningResponse = (
+            await Runner.run(refining_agent, input=user_input)
+        ).final_output
+
+        j = json.dumps(res.model_dump(), indent=4)
+        print(j)
+        qa = res.questions
+
+    except InputGuardrailTripwireTriggered:
+        trying_to_over_eat = True
 
     if trying_to_over_eat:
         return (
@@ -24,8 +37,8 @@ def first_submit(user_input):
             gr.update(visible=True),  # Retry button visible
         )
     else:
-        labels = [list(item.keys())[0] for item in qa]
-        placeholders = [list(item.values())[0] for item in qa]
+        labels = [q.question for q in qa]
+        placeholders = [q.reason for q in qa]
 
         user_update = gr.update(interactive=False)
         btn_update = gr.update(interactive=False)
@@ -56,6 +69,7 @@ def first_submit(user_input):
             gr.update(visible=False),  # Retry button hidden
         )
 
+
 def check_inputs(a, b, c):
     placeholders = [list(item.values())[0] for item in qa]
     vals = [a, b, c]
@@ -65,6 +79,7 @@ def check_inputs(a, b, c):
             return gr.update(interactive=False)
     return gr.update(interactive=True)
 
+
 def final_submit(a, b, c):
     placeholders = [list(item.values())[0] for item in qa]
     vals = [a, b, c]
@@ -72,6 +87,7 @@ def final_submit(a, b, c):
         if not v or not str(v).strip() or str(v).strip() == str(p).strip():
             return gr.update(value="Fill all fields with your own values", visible=True)
     return gr.update(value=re_out, visible=True)
+
 
 # Function to create PDF
 def create_pdf(text):
@@ -83,19 +99,21 @@ def create_pdf(text):
     pdf.output(filename)
     return filename  # Gradio will use this for download
 
+
 def reset_app():
     return (
         gr.update(value="", visible=False, interactive=True),  # warning
-        gr.update(value="", visible=True, interactive=True),   # user_input
-        gr.update(visible=True, interactive=True),             # submit button
+        gr.update(value="", visible=True, interactive=True),  # user_input
+        gr.update(visible=True, interactive=True),  # submit button
         gr.update(visible=False),  # QA1
         gr.update(visible=False),  # QA2
         gr.update(visible=False),  # QA3
         gr.update(visible=False, interactive=False),  # final button
-        gr.update(value="", visible=False),            # output
-        gr.update(visible=False),                      # retry button
-        gr.update(value=None, visible=False)          # download button
+        gr.update(value="", visible=False),  # output
+        gr.update(visible=False),  # retry button
+        gr.update(value=None, visible=False),  # download button
     )
+
 
 with gr.Blocks() as demo:
     user_input = gr.Textbox(label="Initial Input")
@@ -134,8 +152,18 @@ with gr.Blocks() as demo:
 
         if out_update["value"] != "Fill all fields with your own values":
             pdf_file = create_pdf(out_update["value"])
-            return out_update, gr.update(value=pdf_file, visible=True), final_btn_update, gr.update(visible=True)
-        return out_update, gr.update(visible=False), final_btn_update, gr.update(visible=False)
+            return (
+                out_update,
+                gr.update(value=pdf_file, visible=True),
+                final_btn_update,
+                gr.update(visible=True),
+            )
+        return (
+            out_update,
+            gr.update(visible=False),
+            final_btn_update,
+            gr.update(visible=False),
+        )
 
     final_btn.click(
         fn=final_submit_with_download,
@@ -147,7 +175,18 @@ with gr.Blocks() as demo:
     retry_btn.click(
         fn=reset_app,
         inputs=[],
-        outputs=[warning, user_input, submit_btn, qa_inputs[0], qa_inputs[1], qa_inputs[2], final_btn, output, retry_btn, download_btn],
+        outputs=[
+            warning,
+            user_input,
+            submit_btn,
+            qa_inputs[0],
+            qa_inputs[1],
+            qa_inputs[2],
+            final_btn,
+            output,
+            retry_btn,
+            download_btn,
+        ],
     )
 
 if __name__ == "__main__":
