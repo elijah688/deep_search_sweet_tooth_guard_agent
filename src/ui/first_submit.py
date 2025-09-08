@@ -30,7 +30,6 @@ async def first_submit(
     )
 
     trying_to_over_eat = False
-    refining_agent=None
     if refining_agent:
         res: Tuple[bool, Optional[RefiningResponse]] = await refining_agent.run(
             user_input
