@@ -111,18 +111,23 @@ with gr.Blocks() as demo:
     for box in qa_inputs:
         box.change(fn=check_inputs, inputs=qa_inputs, outputs=final_btn)
 
-    # Show output and enable download
+    # Show output, enable download, and lock the final button
     def final_submit_with_download(a, b, c):
         out_update = final_submit(a, b, c)
+
+        # Lock the Final Submit button
+        final_btn_update = gr.update(interactive=False)
+
         if out_update["value"] != "Fill all fields with your own values":
             pdf_file = create_pdf(out_update["value"])
-            return out_update, gr.update(value=pdf_file, visible=True)
-        return out_update, gr.update(visible=False)
+            return out_update, gr.update(value=pdf_file, visible=True), final_btn_update
+
+        return out_update, gr.update(visible=False), final_btn_update
 
     final_btn.click(
         fn=final_submit_with_download,
         inputs=qa_inputs,
-        outputs=[output, download_btn],
+        outputs=[output, download_btn, final_btn],
     )
 
 if __name__ == "__main__":
