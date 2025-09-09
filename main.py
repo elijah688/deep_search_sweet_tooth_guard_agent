@@ -5,9 +5,10 @@ from src.refiner.runner import RefiningAgentRunner
 from src.ui.validate_inputs import validate_inputs
 from src.ui.reset import reset_app
 from src.ui.deep_research import submit_deep_research
+from deep_research.manager import DeepResearchManager
 
 refining_agent = RefiningAgentRunner(spawn_refining_agent())
-
+drm = DeepResearchManager()
 
 async def fs_wrapper(user_input: str):
     async for ui_update in fs(
