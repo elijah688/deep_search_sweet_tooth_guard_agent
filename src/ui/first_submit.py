@@ -2,17 +2,13 @@ from src.refiner.runner import RefiningAgentRunner
 from typing import Optional, Tuple
 from src.refiner.types import RefiningResponse
 from typing import Callable, Any
-
-DEFAULT_QA = [
-    {"question": "q0", "reason": "r0"},
-    {"question": "q1", "reason": "r1"},
-    {"question": "q2", "reason": "r2"},
-]
+from src.ui.state import DEFAULT_QA
+from gradio import update
 
 
 async def first_submit(
     user_input: str,
-    gr_update_fn: Callable[..., dict[str, Any]],
+    gr_update_fn: Callable[..., dict[str, Any]] = update,
     refining_agent: RefiningAgentRunner | None = None,
     questions_list: list[dict[str, str]] = DEFAULT_QA,
     warning_msg: str = "⚠️ Whoa there, Sugar Bear!\n🍰🍫🍕 Slow down! Your sweet tooth is on fire! 🔥🥐🍩",
@@ -28,7 +24,7 @@ async def first_submit(
         gr_update_fn(interactive=False),
         gr_update_fn(interactive=False),
     )
-
+    refining_agent = None
     trying_to_over_eat = False
     if refining_agent:
         res: Tuple[bool, Optional[RefiningResponse]] = await refining_agent.run(

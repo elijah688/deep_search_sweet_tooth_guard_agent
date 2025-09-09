@@ -1,73 +1,20 @@
 import gradio as gr
-from fpdf import FPDF
 from src.ui.first_submit import first_submit as fs
 from src.refiner.factory import spawn_refining_agent
 from src.refiner.runner import RefiningAgentRunner
-from typing import Any
+from src.ui.validate_inputs import validate_inputs
+from src.ui.reset import reset_app
+from src.ui.deep_research import submit_deep_research
 
 refining_agent = RefiningAgentRunner(spawn_refining_agent())
-DEFAULT_QA = [
-    {"question": "", "reason": ""},
-    {"question": "", "reason": ""},
-    {"question": "", "reason": ""},
-]
-
-re_out = "research out"
 
 
 async def fs_wrapper(user_input: str):
     async for ui_update in fs(
-        gr_update_fn=gr.update,
         user_input=user_input,
         refining_agent=refining_agent,
     ):
         yield ui_update
-
-
-def check_inputs(a: str, b: str, c: str) -> dict[str, Any]:
-    placeholders: list[str] = [list(item.values())[0] for item in DEFAULT_QA]
-    vals: list[str] = [a, b, c]
-
-    for v, p in zip(vals, placeholders):
-        if not v or not str(v).strip() or str(v).strip() == str(p).strip():
-            return gr.update(interactive=False)
-    return gr.update(interactive=True)
-
-
-def final_submit(a: str, b: str, c: str) -> dict[str, Any]:
-    placeholders: list[str] = [list(item.values())[0] for item in DEFAULT_QA]
-    vals: list[str] = [a, b, c]
-
-    for v, p in zip(vals, placeholders):
-        if not v or not str(v).strip() or str(v).strip() == str(p).strip():
-            return gr.update(value="Fill all fields with your own values", visible=True)
-    return gr.update(value=re_out, visible=True)
-
-
-# Function to create PDF
-def create_pdf(text: str) -> str:
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", size=12)
-    pdf.multi_cell(0, 10, text)  # type: ignore
-    filename = "output.pdf"
-    pdf.output(filename)
-    return filename
-
-
-def reset_app():
-    return (
-        gr.update(value="", visible=False, interactive=True),  # warning
-        gr.update(value="", visible=True, interactive=True),  # user_input
-        gr.update(visible=True, interactive=True),  # submit button
-        gr.update(visible=False),  # QA1
-        gr.update(visible=False),  # QA2
-        gr.update(visible=False),  # QA3
-        gr.update(visible=False, interactive=False),  # final button
-        gr.update(value="", visible=False),  # output
-        gr.update(visible=False),  # retry button
-        gr.update(value=None, visible=False),  # download button
-    )
 
 
 with gr.Blocks() as demo:
@@ -80,7 +27,6 @@ with gr.Blocks() as demo:
     download_btn = gr.File(label="Download PDF", visible=False)
     retry_btn = gr.Button("Retry", visible=False)
 
-    # First submit
     submit_btn.click(
         fn=fs_wrapper,
         inputs=[user_input],
@@ -98,35 +44,14 @@ with gr.Blocks() as demo:
     )
 
     for box in qa_inputs:
-        box.change(fn=check_inputs, inputs=qa_inputs, outputs=final_btn)
-
-    # Final submit with PDF and lock button
-    def final_submit_with_download(a: str, b: str, c: str):
-        out_update = final_submit(a, b, c)
-        final_btn_update = gr.update(interactive=False)
-
-        if out_update["value"] != "Fill all fields with your own values":
-            pdf_file = create_pdf(out_update["value"])
-            return (
-                out_update,
-                gr.update(value=pdf_file, visible=True),
-                final_btn_update,
-                gr.update(visible=True, interactive=True),
-            )
-        return (
-            out_update,
-            gr.update(visible=False),
-            final_btn_update,
-            gr.update(visible=False),
-        )
+        box.change(fn=validate_inputs, inputs=qa_inputs, outputs=final_btn)
 
     final_btn.click(
-        fn=final_submit_with_download,
+        fn=submit_deep_research,
         inputs=qa_inputs,
         outputs=[output, download_btn, final_btn, retry_btn],
     )
 
-    # Retry button resets the app
     retry_btn.click(
         fn=reset_app,
         inputs=[],
