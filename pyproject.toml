@@ -6,9 +6,8 @@ readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
     "gradio>=5.44.1",
-    "markdown2>=2.5.4",
+    "markdown-pdf>=1.9",
     "openai-agents>=0.2.11",
-    "weasyprint>=66.0",
 ]
 
 [dependency-groups]

@@ -1,7 +1,8 @@
-import markdown2
-from weasyprint import HTML
+from markdown_pdf import MarkdownPdf, Section
 
-def create_pdf(md_text: str, output_file="output.pdf"):
-    html_text = markdown2.markdown(md_text)  # Markdown → HTML
-    HTML(string=html_text).write_pdf(output_file)
-    return output_file
+def create_pdf(md_text: str) -> str:
+    pdf = MarkdownPdf(toc_level=2)
+    pdf.add_section(Section(md_text))  
+    filename = "output.pdf"
+    pdf.save(filename)
+    return filename

@@ -11,7 +11,7 @@ async def first_submit(
     gr_update_fn: Callable[..., dict[str, Any]] = update,
     refining_agent: RefiningAgentRunner | None = None,
     questions_list: list[dict[str, str]] = DEFAULT_QA,
-    warning_msg: str = "⚠️ Whoa there, Sugar Bear!\n🍰🍫🍕 Slow down! Your sweet tooth is on fire! 🔥🥐🍩",
+    warning_msg: str = "⚠️ Whoa! 🍫🍕 Looks like someone’s talking snacks. 🍩🍪 Guardrail engaged! ✅",
 ):
     yield (
         gr_update_fn(interactive=False),
@@ -26,7 +26,6 @@ async def first_submit(
     )
 
     trying_to_over_eat = False
-    refining_agent = None
     if refining_agent:
         res: Tuple[bool, Optional[RefiningResponse]] = await refining_agent.run(
             user_input

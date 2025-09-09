@@ -55,8 +55,8 @@ async def submit_deep_research(
         update(visible=False),
     )
 
-    async for c in stream(20,20):
-    # drm.stream(topic=topic, clarifying_qas=clarifying_qas[:1]):
+    # async for c in stream(20,20):
+    async for c in drm.stream(topic=topic, clarifying_qas=clarifying_qas):
         out += c
         yield (
             update(value=out, visible=True),
