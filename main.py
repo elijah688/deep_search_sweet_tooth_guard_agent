@@ -5,10 +5,11 @@ from src.refiner.runner import RefiningAgentRunner
 from src.ui.validate_inputs import validate_inputs
 from src.ui.reset import reset_app
 from src.ui.deep_research import submit_deep_research
-from deep_research.manager import DeepResearchManager
+from src.deep_research.manager import DeepResearchManager
 
 refining_agent = RefiningAgentRunner(spawn_refining_agent())
 drm = DeepResearchManager()
+
 
 async def fs_wrapper(user_input: str):
     async for ui_update in fs(
@@ -18,6 +19,12 @@ async def fs_wrapper(user_input: str):
         yield ui_update
 
 
+async def sd_wrapper(a: str, b: str, c: str):
+    async for ui_update in submit_deep_research(a, b, c):
+        yield ui_update
+
+
+# submit_deep_research
 with gr.Blocks() as demo:
     user_input = gr.Textbox(label="Initial Input")
     submit_btn = gr.Button("Submit")
@@ -48,7 +55,7 @@ with gr.Blocks() as demo:
         box.change(fn=validate_inputs, inputs=qa_inputs, outputs=final_btn)
 
     final_btn.click(
-        fn=submit_deep_research,
+        fn=sd_wrapper,
         inputs=qa_inputs,
         outputs=[output, download_btn, final_btn, retry_btn],
     )
