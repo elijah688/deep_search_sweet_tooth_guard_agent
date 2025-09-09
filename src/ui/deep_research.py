@@ -44,7 +44,6 @@ async def submit_deep_research(
         for q, ans in zip(valid_questions, [a, b, c])
         if q is not None
     ]
-    print(clarifying_qas)
 
     out: str = ""
 
