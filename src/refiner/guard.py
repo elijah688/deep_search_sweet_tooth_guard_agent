@@ -10,7 +10,7 @@ from agents import (
 
 
 class OverEatingOutput(BaseModel):
-    is_trying_to_get_fat: bool
+    is_trying_to_over_eat: bool
     reasoning: str
 
 instructions = """
@@ -43,5 +43,5 @@ async def eat_guard(
     output_info: OverEatingOutput = result.final_output
     return GuardrailFunctionOutput(
         output_info,
-        tripwire_triggered=output_info.is_trying_to_get_fat,
+        tripwire_triggered=output_info.is_trying_to_over_eat,
     )

@@ -7,7 +7,7 @@ from src.ui.reset import reset_app
 from src.ui.deep_research import submit_deep_research
 from src.deep_research.manager import DeepResearchManager
 from agents import trace
-from src.ui.state import set_qas
+from src.ui.state import set_qas, get_qas
 
 refining_agent = RefiningAgentRunner(spawn_refining_agent())
 drm = DeepResearchManager()
@@ -15,7 +15,10 @@ drm = DeepResearchManager()
 
 async def fs_wrapper(user_input: str):
     async for ui_update in fs(
-        user_input=user_input, refining_agent=refining_agent, update_qas=set_qas
+        user_input=user_input,
+        refining_agent=refining_agent,
+        update_qas=set_qas,
+        questions_list=get_qas(),
     ):
         yield ui_update
 
@@ -25,7 +28,6 @@ async def sd_wrapper(user_input: str, a: str, b: str, c: str):
         topic=user_input, a=a, b=b, c=c, drm=drm
     ):
         yield ui_update
-
 
 
 with gr.Blocks() as demo:
