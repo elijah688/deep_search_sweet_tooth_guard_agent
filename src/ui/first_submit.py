@@ -2,15 +2,17 @@ from src.refiner.runner import RefiningAgentRunner
 from typing import Optional, Tuple
 from src.refiner.types import RefiningResponse
 from typing import Callable, Any
-from src.ui.state import DEFAULT_QA
 from gradio import update
+from typing import List
+
 
 
 async def first_submit(
     user_input: str,
     gr_update_fn: Callable[..., dict[str, Any]] = update,
     refining_agent: RefiningAgentRunner | None = None,
-    questions_list: list[dict[str, str]] = DEFAULT_QA,
+    update_qas: Optional[Callable[[List[dict[str, str]]], None]] = None,
+
     warning_msg: str = "⚠️ Whoa! 🍫🍕 Looks like someone’s talking snacks. 🍩🍪 Guardrail engaged! ✅",
 ):
     yield (
@@ -26,6 +28,10 @@ async def first_submit(
     )
 
     trying_to_over_eat = False
+
+    if update_qas:
+        update_qas(questions_list)
+    
     if refining_agent:
         res: Tuple[bool, Optional[RefiningResponse]] = await refining_agent.run(
             user_input

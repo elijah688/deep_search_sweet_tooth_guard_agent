@@ -1,7 +1,7 @@
 from src.ui.validate_inputs import inputs_complete
 from gradio import update
 from src.ui.create_pdf import create_pdf
-from src.ui.state import DEFAULT_QA
+from src.ui.state import get_qas
 from src.deep_research.web_research_designer.types import (
     ClarifyingQA,
 )
@@ -36,7 +36,7 @@ async def submit_deep_research(
     final_btn_update = update(interactive=False)
 
     valid_questions = [
-        q.get("question") for q in DEFAULT_QA if q.get("question") is not None
+        q.get("question") for q in get_qas() if q.get("question") is not None
     ]
 
     clarifying_qas = [
