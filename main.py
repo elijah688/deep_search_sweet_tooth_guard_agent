@@ -19,8 +19,10 @@ async def fs_wrapper(user_input: str):
         yield ui_update
 
 
-async def sd_wrapper(a: str, b: str, c: str):
-    async for ui_update in submit_deep_research(a, b, c):
+async def sd_wrapper(user_input: str, a: str, b: str, c: str):
+    async for ui_update in submit_deep_research(
+        topic=user_input, a=a, b=b, c=c, drm=drm
+    ):
         yield ui_update
 
 
@@ -56,7 +58,7 @@ with gr.Blocks() as demo:
 
     final_btn.click(
         fn=sd_wrapper,
-        inputs=qa_inputs,
+        inputs=[user_input, *qa_inputs],
         outputs=[output, download_btn, final_btn, retry_btn],
     )
 

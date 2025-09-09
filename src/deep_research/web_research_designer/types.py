@@ -1,7 +1,7 @@
 from typing import List
 from pydantic import BaseModel, Field, field_validator
 
-SEARCH_TERM_SIZE = 3
+SEARCH_TERM_SIZE = 1
 
 
 class ClarifyingQA(BaseModel):

@@ -5,7 +5,6 @@ from src.deep_research.web_research_designer.designer import research_designer_a
 from openai.types.responses import ResponseTextDeltaEvent
 from src.deep_research.web_research_executor.executor import web_search
 from src.deep_research.report_writer.report_writer import WriterAgent
-from src.deep_research.report_writer.types import ResearcherReport
 from agents import Agent, Runner
 from typing import List
 from collections.abc import AsyncGenerator
@@ -36,7 +35,6 @@ class DeepResearchManager:
             instructions=INSTRUCTIONS,
             name="Manager",
             model="gpt-4o-mini",
-            output_type=ResearcherReport,
             tools=[research_designer_agent, web_search, report_writer],
         )
 
