@@ -21,11 +21,12 @@ async def first_submit(
         gr_update_fn(interactive=False),
         gr_update_fn(interactive=False),
         gr_update_fn(interactive=False),
-        gr_update_fn(interactive=False),
+        gr_update_fn(),
         gr_update_fn(interactive=False),
     )
-    refining_agent = None
+
     trying_to_over_eat = False
+    refining_agent = None
     if refining_agent:
         res: Tuple[bool, Optional[RefiningResponse]] = await refining_agent.run(
             user_input
@@ -44,7 +45,7 @@ async def first_submit(
             gr_update_fn(visible=False),  # QA2
             gr_update_fn(visible=False),  # QA3
             gr_update_fn(visible=False),  # final submit
-            gr_update_fn(visible=False, value=""),  # output
+            gr_update_fn(value=""),  # output
             gr_update_fn(visible=True, interactive=True),  # retry button
         )
         return

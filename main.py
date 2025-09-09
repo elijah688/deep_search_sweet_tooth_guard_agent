@@ -26,40 +26,39 @@ async def sd_wrapper(user_input: str, a: str, b: str, c: str):
         yield ui_update
 
 
-# submit_deep_research
 with gr.Blocks() as demo:
     user_input = gr.Textbox(label="Initial Input")
-    submit_btn = gr.Button("Submit")
+    refine_btn = gr.Button("Submit")
     warning = gr.Textbox(label="", interactive=False, visible=False)
     qa_inputs = [gr.Textbox(visible=False) for _ in range(3)]
-    final_btn = gr.Button("Final Submit", visible=False, interactive=False)
-    output = gr.Textbox(label="Output", interactive=False, visible=False)
+    deep_search_btn = gr.Button("Final Submit", visible=False, interactive=False)
+    output = gr.Markdown(label="Output", visible=False)
     download_btn = gr.File(label="Download PDF", visible=False)
     retry_btn = gr.Button("Retry", visible=False)
 
-    submit_btn.click(
+    refine_btn.click(
         fn=fs_wrapper,
         inputs=[user_input],
         outputs=[
             warning,
             user_input,
-            submit_btn,
+            refine_btn,
             qa_inputs[0],
             qa_inputs[1],
             qa_inputs[2],
-            final_btn,
+            deep_search_btn,
             output,
             retry_btn,
         ],
     )
 
     for box in qa_inputs:
-        box.change(fn=validate_inputs, inputs=qa_inputs, outputs=final_btn)
+        box.change(fn=validate_inputs, inputs=qa_inputs, outputs=deep_search_btn)
 
-    final_btn.click(
+    deep_search_btn.click(
         fn=sd_wrapper,
         inputs=[user_input, *qa_inputs],
-        outputs=[output, download_btn, final_btn, retry_btn],
+        outputs=[output, download_btn, deep_search_btn, retry_btn],
     )
 
     retry_btn.click(
@@ -68,11 +67,11 @@ with gr.Blocks() as demo:
         outputs=[
             warning,
             user_input,
-            submit_btn,
+            refine_btn,
             qa_inputs[0],
             qa_inputs[1],
             qa_inputs[2],
-            final_btn,
+            deep_search_btn,
             output,
             retry_btn,
             download_btn,

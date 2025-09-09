@@ -5,9 +5,10 @@ description = "Add your description here"
 readme = "README.md"
 requires-python = ">=3.13"
 dependencies = [
-    "fpdf>=1.7.2",
     "gradio>=5.44.1",
+    "markdown2>=2.5.4",
     "openai-agents>=0.2.11",
+    "weasyprint>=66.0",
 ]
 
 [dependency-groups]

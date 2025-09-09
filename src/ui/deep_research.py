@@ -1,6 +1,5 @@
 from src.ui.validate_inputs import inputs_complete
 from gradio import update
-from typing import Any
 from src.ui.create_pdf import create_pdf
 from src.ui.state import DEFAULT_QA
 from src.deep_research.web_research_designer.types import (
@@ -14,15 +13,6 @@ from src.deep_research.manager import DeepResearchManager
 import string
 import random
 from collections.abc import AsyncGenerator
-
-
-from json import dumps
-
-
-def __launch_deep_research(a: str, b: str, c: str) -> dict[str, Any]:
-    if not inputs_complete(a, b, c):
-        return update(value="Fill all fields with your own values", visible=True)
-    return update(value="", visible=True)
 
 
 async def submit_deep_research(
@@ -43,7 +33,6 @@ async def submit_deep_research(
         )
         return
 
-    out_update = __launch_deep_research(a, b, c)
     final_btn_update = update(interactive=False)
 
     valid_questions = [
@@ -55,34 +44,29 @@ async def submit_deep_research(
         for q, ans in zip(valid_questions, [a, b, c])
         if q is not None
     ]
+    print(clarifying_qas)
 
-    topic = "let's make a workout program"
-    clarifying_qas = [
-        ClarifyingQA(question="What is your fitness goal?", answer="Build muscle"),
-        ClarifyingQA(question="How many days a week can you train?", answer="4"),
-        ClarifyingQA(question="Do you have any injuries?", answer="No"),
-    ]
-
-    print(dumps([x.model_dump() for x in clarifying_qas], indent=4))
-    print(out_update)
-    print(topic)
     out: str = ""
 
-    async for c in drm.stream(topic=topic, clarifying_qas=clarifying_qas[:1]):
-    # async for c in stream(10, 10):
+    yield (
+        update(visible=False),
+        update(visible=False),
+        update(visible=True, interactive=False),
+        update(visible=False),
+    )
+
+    async for c in stream(20,20):
+    # drm.stream(topic=topic, clarifying_qas=clarifying_qas[:1]):
         out += c
-        print(c)
         yield (
             update(value=out, visible=True),
             update(visible=False),
             final_btn_update,
             update(visible=False, interactive=False),
         )
-    safe_text = out.encode("latin-1", errors="replace").decode("latin-1")
-    pdf = create_pdf(safe_text)
     yield (
         update(value=out, visible=True),
-        update(value=pdf, visible=True),
+        update(value=create_pdf(out), visible=True),
         final_btn_update,
         update(visible=True, interactive=True),
     )
